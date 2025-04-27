@@ -1,0 +1,422 @@
+openapi: 3.0.3
+info:
+  title: Eduportal API
+  version: 1.0.0
+tags:
+  - name: user
+    description: User operations
+  - name: course
+    description: Course operations
+components:
+  schemas:
+    UserCreate:
+      description: User creation object
+      type: object
+      properties:
+        username:
+          type: string
+          description: Username of the user
+        password:
+          type: string
+          format: password
+          description: Password for the user account
+        email:
+          type: string
+          format: email
+          description: Email address of the user
+        firstName:
+          type: string
+          description: First name of the user
+        lastName:
+          type: string
+          description: Last name of the user
+    UserResponse:
+        description: User response object
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int32
+            description: Unique identifier for the user
+          username:
+            type: string
+            description: Username of the user
+          email:
+            type: string
+            format: email
+            description: Email address of the user
+          firstName:
+            type: string
+            description: First name of the user
+          lastName:
+            type: string
+            description: Last name of the user
+          enrolledCoursesCodes:
+            type: array
+            items:
+              type: string
+            description: List of course codes the user is enrolled in
+          teachingCoursesCodes:
+            type: array
+            items:
+              type: string
+            description: List of course codes the user is teaching
+    CourseCreate:
+      description: Course object
+      type: object
+      properties:
+        title:
+          type: string
+          description: Title of the course
+        code:
+          type: string
+          description: Course code
+        description:
+          type: string
+          description: Description of the course
+        teachersUsernames:
+          type: array
+          items:
+            type: string
+          description: List of teachers' usernames for the course
+    CourseResponse:
+      description: Course response object
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: Unique identifier for the course
+        title:
+          type: string
+          description: Title of the course
+        code:
+          type: string
+          description: Unique code of the course
+        studentsUsernames:
+          type: array
+          items:
+            type: string
+          description: List of student usernames enrolled in the course
+        teachersUsernames:
+          type: array
+          items:
+            type: string
+          description: List of teacher usernames assigned to the course
+    AssignmentCreate:
+      description: Assignment object
+      type: object
+      properties:
+        code:
+          type: string
+          description: Unique code of the assignment
+        title:
+          type: string
+          description: Title of the assignment
+        type:
+            type: string
+            description: Type of the assignment (e.g., homework, project, test, exam)
+        deadline:
+          type: string
+          format: date-time
+          description: Deadline date for the assignment
+        courseCode:
+          type: string
+          description: Code of the course the assignment belongs to
+    AssignmentResponse:
+      description: Assignment response object
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: Unique identifier for the assignment
+        code:
+          type: string
+          description: Unique code of the assignment
+        title:
+          type: string
+          description: Title of the assignment
+        type:
+            type: string
+            description: Type of the assignment (e.g., homework, project, test, exam)
+        deadline:
+          type: string
+          format: date-time
+          description: Deadline date for the assignment
+        courseCode:
+          type: string
+          description: Code of the course the assignment belongs to
+paths:
+  /users:
+    get:
+      tags:
+        - user
+      summary: Get all users
+      description: Retrieve a list of all users
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: Successfully retrieved users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+    post:
+      tags:
+        - user
+      summary: Create a new user
+      description: Create a new user account
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: Successfully created user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid input data
+        '409':
+          description: User already exists
+  /users/{username}:
+    get:
+      tags:
+        - user
+      summary: Get user by username
+      description: Retrieve a user by their unique username
+      operationId: getUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: username of the user to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User not found
+    put:
+      tags:
+        - user
+      summary: Update user by username
+      description: Update user information by their unique username
+      operationId: updateUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: username of the user to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserResponse'
+      responses:
+        '200':
+          description: Successfully updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid input data
+        '404':
+          description: User not found
+    delete:
+      tags:
+        - user
+      summary: Delete user by username
+      description: Delete a user by their unique username
+      operationId: deleteUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: username of the user to delete
+          schema:
+              type: string
+      responses:
+        '204':
+          description: Successfully deleted user
+        '404':
+          description: User not found
+  /courses:
+    get:
+      tags:
+        - course
+      summary: Get all courses
+      description: Retrieve a list of all courses
+      operationId: getAllCourses
+      responses:
+        '200':
+          description: Successfully retrieved courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseResponse'
+    post:
+      tags:
+        - course
+      summary: Create a new course
+      description: Create a new course
+      operationId: createCourse
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseCreate'
+      responses:
+        '201':
+          description: Successfully created course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseResponse'
+        '400':
+          description: Invalid input data
+        '409':
+          description: Course already exists
+  /courses/{courseCode}:
+    get:
+      tags:
+        - course
+      summary: Get course by code
+      description: Retrieve a course by its unique code
+      operationId: getCourse
+      parameters:
+        - name: courseCode
+          in: path
+          required: true
+          description: code of the course to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseResponse'
+        '404':
+          description: Course not found
+    delete:
+      tags:
+        - course
+      summary: Delete course by code
+      description: Delete a course by its unique code
+      operationId: deleteCourse
+      parameters:
+        - name: courseCode
+          in: path
+          required: true
+          description: code of the course to delete
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successfully deleted course
+        '404':
+          description: Course not found
+  /assignments:
+    get:
+      tags:
+        - assignment
+      summary: Get all assignments
+      description: Retrieve a list of all assignments
+      operationId: getAllAssignments
+      responses:
+        '200':
+          description: Successfully retrieved assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssignmentResponse'
+    post:
+      tags:
+        - assignment
+      summary: Create a new assignment
+      description: Create a new assignment
+      operationId: createAssignment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignmentCreate'
+      responses:
+        '201':
+          description: Successfully created assignment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentResponse'
+        '400':
+          description: Invalid input data
+        '409':
+          description: Assignment already exists
+  /assignments/{assignmentId}:
+    get:
+      tags:
+        - assignment
+      summary: Get assignment by ID
+      description: Retrieve an assignment by its unique ID
+      operationId: getAssignment
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          description: ID of the assignment to retrieve
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successfully retrieved assignment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentResponse'
+        '404':
+          description: Assignment not found
+    delete:
+      tags:
+        - assignment
+      summary: Delete assignment by ID
+      description: Delete an assignment by its unique ID
+      operationId: deleteAssignment
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          description: ID of the assignment to delete
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Successfully deleted assignment
+        '404':
+          description: Assignment not found
