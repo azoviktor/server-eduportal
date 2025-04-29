@@ -147,6 +147,49 @@ components:
         courseCode:
           type: string
           description: Code of the course the assignment belongs to
+        assignmentsCodes:
+          type: array
+          items:
+            type: string
+          description: List of assignment codes for the course
+    SubmissionCreate:
+      description: Submission object
+      type: object
+      properties:
+        assignmentCode:
+          type: string
+          description: Code of the assignment being submitted
+        studentUsername:
+          type: string
+          description: Username of the student submitting the assignment
+        filePath:
+          type: string
+          description: Path to the submitted file
+        submissionDate:
+          type: string
+          format: date-time
+          description: Date and time of the submission
+    SubmissionResponse:
+        description: Submission response object
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int32
+            description: Unique identifier for the submission
+          assignmentCode:
+            type: string
+            description: Code of the assignment being submitted
+          studentUsername:
+            type: string
+            description: Username of the student submitting the assignment
+          filePath:
+            type: string
+            description: Path to the submitted file
+          submissionDate:
+            type: string
+            format: date-time
+            description: Date and time of the submission
 paths:
   /users:
     get:
@@ -420,3 +463,85 @@ paths:
           description: Successfully deleted assignment
         '404':
           description: Assignment not found
+  /submissions:
+    get:
+      tags:
+        - submission
+      summary: Get all submissions
+      description: Retrieve a list of all submissions
+      operationId: getAllSubmissions
+      responses:
+        '200':
+          description: Successfully retrieved submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubmissionResponse'
+    post:
+      tags:
+        - submission
+      summary: Create a new submission
+      description: Create a new submission for an assignment
+      operationId: createSubmission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionCreate'
+      responses:
+        '201':
+          description: Successfully created submission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionResponse'
+        '400':
+          description: Invalid input data
+        '409':
+          description: Submission already exists
+  /submissions/{submissionId}:
+    get:
+      tags:
+        - submission
+      summary: Get submission by ID
+      description: Retrieve a submission by its unique ID
+      operationId: getSubmission
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          description: ID of the submission to retrieve
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successfully retrieved submission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionResponse'
+        '404':
+          description: Submission not found
+    delete:
+      tags:
+        - submission
+      summary: Delete submission by ID
+      description: Delete a submission by its unique ID
+      operationId: deleteSubmission
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          description: ID of the submission to delete
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Successfully deleted submission
+        '404':
+          description: Submission not found

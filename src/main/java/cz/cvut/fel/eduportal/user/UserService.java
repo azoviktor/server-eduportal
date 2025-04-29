@@ -31,6 +31,7 @@ public class UserService {
         return user.map(UserConverter::toResponseDTO);
     }
 
+    @Transactional
     public UserResponseDTO createUser(UserCreateDTO userDTO) throws AlreadyExistsException {
         String normalizedUsername = userDTO.username().trim().toLowerCase();
         if (userRepository.findByUsername(normalizedUsername).isPresent()) {
@@ -42,6 +43,7 @@ public class UserService {
         return UserConverter.toResponseDTO(user);
     }
 
+    @Transactional
     public UserResponseDTO updateUser(String username, UserCreateDTO userDTO) throws NotFoundException {
         Optional<User> existingUser = userRepository.findByUsername(username);
         if (existingUser.isPresent()) {
@@ -51,7 +53,7 @@ public class UserService {
             user.setEmail(userDTO.email());
             user.setFirstName(userDTO.firstName());
             user.setLastName(userDTO.lastName());
-            userRepository.save(user);
+            //userRepository.save(user);
             return UserConverter.toResponseDTO(user);
         } else {
             throw new NotFoundException("User not found with username: " + username);
@@ -60,9 +62,13 @@ public class UserService {
 
     @Transactional
     public void deleteUser(String username) throws NotFoundException {
-        if (!userRepository.existsByUsername(username)) {
+        Optional<User> optUser = userRepository.findByUsername(username);
+        if (optUser.isEmpty()) {
             throw new NotFoundException("User not found with username: " + username);
         }
-        userRepository.deleteByUsername(username);
+        User user = optUser.get();
+        user.getTeachingCourses().forEach(course -> course.removeTeacher(user));
+        user.getEnrolledCourses().forEach(course -> course.removeStudent(user));
+        userRepository.delete(user);
     }
 }

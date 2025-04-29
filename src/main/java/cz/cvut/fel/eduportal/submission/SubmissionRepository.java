@@ -2,6 +2,5 @@ package cz.cvut.fel.eduportal.submission;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface SubmissionRepository extends JpaRepository<Submission, Long> {
-    Submission findById(long id);
+public interface SubmissionRepository extends JpaRepository<Submission, Integer> {
 }

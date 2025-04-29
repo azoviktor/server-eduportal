@@ -43,10 +43,10 @@ public class Course {
             joinColumns = @JoinColumn(name = "course_id"),
             inverseJoinColumns = @JoinColumn(name = "student_id")
     )
-    private List<User> students = new ArrayList<>();
+    private Set<User> students = new HashSet<>();
 
     @OneToMany(mappedBy = "course")
-    private List<Assignment> assignments = new ArrayList<>();
+    private Set<Assignment> assignments = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {
@@ -58,7 +58,7 @@ public class Course {
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return code.hashCode();
     }
 
     public List<String> getStudentsUsernames() {
@@ -73,9 +73,33 @@ public class Course {
                 .toList();
     }
 
+    public List<String> getAssignmentsCodes() {
+        return assignments.stream()
+                .map(Assignment::getCode)
+                .toList();
+    }
+
     public void addTeacher(User teacher) {
         if (teacher != null) {
             teachers.add(teacher);
+        }
+    }
+
+    public void removeTeacher(User teacher) {
+        if (teacher != null) {
+            teachers.remove(teacher);
+        }
+    }
+
+    public void addStudent(User student) {
+        if (student != null) {
+            students.add(student);
+        }
+    }
+
+    public void removeStudent(User student) {
+        if (student != null) {
+            students.remove(student);
         }
     }
 }

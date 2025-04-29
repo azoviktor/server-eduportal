@@ -7,6 +7,7 @@ public record CourseResponseDTO(
         String title,
         String code,
         List<String> studentsUsernames,
-        List<String> teachersUsernames
+        List<String> teachersUsernames,
+        List<String> assignmentsCodes
 ) {
 }

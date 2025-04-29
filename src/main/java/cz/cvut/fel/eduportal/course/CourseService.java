@@ -7,6 +7,7 @@ import cz.cvut.fel.eduportal.exception.NotFoundException;
 import cz.cvut.fel.eduportal.user.User;
 import cz.cvut.fel.eduportal.user.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +31,8 @@ public class CourseService {
                 course.getTitle(),
                 course.getCode(),
                 course.getStudentsUsernames(),
-                course.getTeachersUsernames()
+                course.getTeachersUsernames(),
+                course.getAssignmentsCodes()
         );
     }
 
@@ -61,7 +63,8 @@ public class CourseService {
         return course;
     }
 
-    public CourseResponseDTO createCourse(CourseCreateDTO courseDTO) throws AlreadyExistsException {
+    @Transactional
+    public CourseResponseDTO createCourse(CourseCreateDTO courseDTO) throws AlreadyExistsException, NotFoundException {
         if (courseRepository.existsByCode(courseDTO.code())) {
             throw new AlreadyExistsException("Course with code " + courseDTO.code() + " already exists");
         }
@@ -70,6 +73,7 @@ public class CourseService {
         return toResponseDTO(course);
     }
 
+    @Transactional
     public void deleteCourse(String courseCode) throws NotFoundException {
         if (!courseRepository.existsByCode(courseCode)) {
             throw new NotFoundException("Course with code " + courseCode + " not found");

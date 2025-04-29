@@ -7,6 +7,7 @@ import cz.cvut.fel.eduportal.course.CourseRepository;
 import cz.cvut.fel.eduportal.exception.AlreadyExistsException;
 import cz.cvut.fel.eduportal.exception.NotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,11 +62,8 @@ public class AssignmentService {
         return assignment;
     }
 
+    @Transactional
     public AssignmentResponseDTO createAssignment(AssignmentCreateDTO assignmentDTO) throws NotFoundException {
-        Optional<Course> course = courseRepository.findByCode(assignmentDTO.courseCode());
-        if (course.isEmpty()) {
-            throw new NotFoundException("Course with code " + assignmentDTO.courseCode() + " not found");
-        }
         if (assignmentRepository.existsByCodeAndCourse_Code(assignmentDTO.code(), assignmentDTO.courseCode())) {
             throw new AlreadyExistsException("Assignment with code " + assignmentDTO.code() + " already exists in course " + assignmentDTO.courseCode());
         }
@@ -74,6 +72,7 @@ public class AssignmentService {
         return toResponseDTO(assignment);
     }
 
+    @Transactional
     public void deleteAssignment(Integer id) throws NotFoundException {
         if (!assignmentRepository.existsById(id)) {
             throw new NotFoundException("Assignment with id " + id + " not found");
