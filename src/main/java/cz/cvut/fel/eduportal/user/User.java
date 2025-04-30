@@ -75,8 +75,12 @@ public class User {
         return roles.contains(Role.TEACHER);
     }
 
-    public void addRoles(List<Role> roles) {
+    public void addRoles(Set<Role> roles) {
         this.roles.addAll(roles);
+    }
+
+    public void removeRoles(Set<Role> roles) {
+        this.roles.removeAll(roles);
     }
 }
 

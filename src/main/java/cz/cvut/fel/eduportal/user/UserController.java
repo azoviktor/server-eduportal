@@ -2,6 +2,7 @@ package cz.cvut.fel.eduportal.user;
 
 import cz.cvut.fel.eduportal.exception.AlreadyExistsException;
 import cz.cvut.fel.eduportal.exception.NotFoundException;
+import cz.cvut.fel.eduportal.exception.teacher.TeacherHasAssignedCoursesException;
 import cz.cvut.fel.eduportal.user.dto.UserCreateDTO;
 import cz.cvut.fel.eduportal.user.dto.UserResponseDTO;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
@@ -27,7 +29,9 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserCreateDTO user) throws AlreadyExistsException {
+    public ResponseEntity<UserResponseDTO> createUser(
+            @Valid @RequestBody UserCreateDTO user
+    ) throws AlreadyExistsException {
         UserResponseDTO savedUser = userService.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
@@ -39,14 +43,29 @@ public class UserController {
     }
 
     @PutMapping("/{username}")
-    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable String username, @Valid @RequestBody UserCreateDTO user)  throws NotFoundException {
+    public ResponseEntity<UserResponseDTO> updateUser(
+            @PathVariable String username,
+            @Valid @RequestBody UserCreateDTO user
+    )  throws NotFoundException {
         UserResponseDTO updatedUser = userService.updateUser(username, user);
         return ResponseEntity.ok(updatedUser);
     }
 
     @PatchMapping("/{username}/roles")
-    public ResponseEntity<UserResponseDTO> addRoles(@PathVariable String username, @RequestBody List<Role> roles) throws NotFoundException {
+    public ResponseEntity<UserResponseDTO> addRoles(
+            @PathVariable String username,
+            @RequestBody Set<Role> roles
+    ) throws NotFoundException {
         UserResponseDTO updatedUser = userService.addRoles(username, roles);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @PatchMapping("/{username}/roles/remove")
+    public ResponseEntity<UserResponseDTO> removeRoles(
+            @PathVariable String username,
+            @RequestBody Set<Role> roles
+    ) throws NotFoundException, TeacherHasAssignedCoursesException {
+        UserResponseDTO updatedUser = userService.removeRoles(username, roles);
         return ResponseEntity.ok(updatedUser);
     }
 

@@ -2,7 +2,9 @@ package cz.cvut.fel.eduportal.user;
 
 import cz.cvut.fel.eduportal.exception.AlreadyExistsException;
 import cz.cvut.fel.eduportal.exception.NotFoundException;
+import cz.cvut.fel.eduportal.exception.student.StudentHasEnrolledCoursesException;
 import cz.cvut.fel.eduportal.exception.teacher.NotATeacherException;
+import cz.cvut.fel.eduportal.exception.teacher.TeacherHasAssignedCoursesException;
 import cz.cvut.fel.eduportal.user.dto.UserCreateDTO;
 import cz.cvut.fel.eduportal.user.dto.UserResponseDTO;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -70,9 +73,25 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO addRoles(String username, List<Role> roles) throws NotFoundException {
+    public UserResponseDTO addRoles(String username, Set<Role> roles) throws NotFoundException {
         User user = getUserByUsernameOrThrow(username);
         user.addRoles(roles);
+        return UserConverter.toResponseDTO(user);
+    }
+
+    @Transactional
+    public UserResponseDTO removeRoles(
+            String username,
+            Set<Role> roles
+    ) throws NotFoundException, TeacherHasAssignedCoursesException, StudentHasEnrolledCoursesException {
+        User user = getUserByUsernameOrThrow(username);
+        if (roles.contains(Role.TEACHER) && !user.getTeachingCourses().isEmpty()) {
+            throw new TeacherHasAssignedCoursesException(username);
+        }
+        if (roles.contains(Role.STUDENT) && !user.getEnrolledCourses().isEmpty()) {
+            throw new StudentHasEnrolledCoursesException(username);
+        }
+        user.removeRoles(roles);
         return UserConverter.toResponseDTO(user);
     }
 
