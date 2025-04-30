@@ -74,5 +74,9 @@ public class User {
     public boolean isTeacher() {
         return roles.contains(Role.TEACHER);
     }
+
+    public void addRoles(List<Role> roles) {
+        this.roles.addAll(roles);
+    }
 }
 

@@ -44,6 +44,12 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    @PatchMapping("/{username}/roles")
+    public ResponseEntity<UserResponseDTO> addRoles(@PathVariable String username, @RequestBody List<Role> roles) throws NotFoundException {
+        UserResponseDTO updatedUser = userService.addRoles(username, roles);
+        return ResponseEntity.ok(updatedUser);
+    }
+
     @DeleteMapping("/{username}")
     public ResponseEntity<Void> deleteUser(@PathVariable String username) throws NotFoundException {
         userService.deleteUser(username);

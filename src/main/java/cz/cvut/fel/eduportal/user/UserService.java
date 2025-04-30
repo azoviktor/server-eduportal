@@ -2,6 +2,7 @@ package cz.cvut.fel.eduportal.user;
 
 import cz.cvut.fel.eduportal.exception.AlreadyExistsException;
 import cz.cvut.fel.eduportal.exception.NotFoundException;
+import cz.cvut.fel.eduportal.exception.teacher.NotATeacherException;
 import cz.cvut.fel.eduportal.user.dto.UserCreateDTO;
 import cz.cvut.fel.eduportal.user.dto.UserResponseDTO;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,19 @@ public class UserService {
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public User getUserByUsernameOrThrow(String username) throws NotFoundException {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User with username " + username + " not found"));
+    }
+
+    public User getTeacherByUsernameOrThrow(String username) throws NotFoundException, NotATeacherException {
+        User user = getUserByUsernameOrThrow(username);
+        if (!user.isTeacher()) {
+            throw new NotATeacherException(username);
+        }
+        return user;
     }
 
     public List<UserResponseDTO> getAllUsers() {
@@ -34,7 +48,7 @@ public class UserService {
     @Transactional
     public UserResponseDTO createUser(UserCreateDTO userDTO) throws AlreadyExistsException {
         String normalizedUsername = userDTO.username().trim().toLowerCase();
-        if (userRepository.findByUsername(normalizedUsername).isPresent()) {
+        if (userRepository.existsByUsername(normalizedUsername)) {
             throw new AlreadyExistsException("User with username " + normalizedUsername + " already exists");
         }
         User user = UserConverter.toEntity(userDTO);
@@ -45,19 +59,21 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO updateUser(String username, UserCreateDTO userDTO) throws NotFoundException {
-        Optional<User> existingUser = userRepository.findByUsername(username);
-        if (existingUser.isPresent()) {
-            User user = existingUser.get();
-            user.setUsername(userDTO.username());
-            user.setPassword(userDTO.password());
-            user.setEmail(userDTO.email());
-            user.setFirstName(userDTO.firstName());
-            user.setLastName(userDTO.lastName());
-            //userRepository.save(user);
-            return UserConverter.toResponseDTO(user);
-        } else {
-            throw new NotFoundException("User not found with username: " + username);
-        }
+        User user = getUserByUsernameOrThrow(username);
+        user.setUsername(userDTO.username());
+        user.setPassword(userDTO.password());
+        user.setEmail(userDTO.email());
+        user.setFirstName(userDTO.firstName());
+        user.setLastName(userDTO.lastName());
+        user.setRoles(userDTO.roles());
+        return UserConverter.toResponseDTO(user);
+    }
+
+    @Transactional
+    public UserResponseDTO addRoles(String username, List<Role> roles) throws NotFoundException {
+        User user = getUserByUsernameOrThrow(username);
+        user.addRoles(roles);
+        return UserConverter.toResponseDTO(user);
     }
 
     @Transactional
