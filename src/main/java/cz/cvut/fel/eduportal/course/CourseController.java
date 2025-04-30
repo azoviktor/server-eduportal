@@ -2,7 +2,11 @@ package cz.cvut.fel.eduportal.course;
 
 import cz.cvut.fel.eduportal.course.dto.CourseCreateDTO;
 import cz.cvut.fel.eduportal.course.dto.CourseResponseDTO;
+import cz.cvut.fel.eduportal.exception.student.StudentAlreadyEnrolledException;
 import cz.cvut.fel.eduportal.exception.NotFoundException;
+import cz.cvut.fel.eduportal.exception.teacher.NotATeacherException;
+import cz.cvut.fel.eduportal.exception.teacher.TeacherAlreadyAssignedException;
+import cz.cvut.fel.eduportal.exception.teacher.TeacherNotAssignedException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,4 +48,27 @@ public class CourseController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{courseCode}/enroll/{username}")
+    public ResponseEntity<Void> enrollStudent(@PathVariable String courseCode, @PathVariable String username) throws NotFoundException, StudentAlreadyEnrolledException {
+        courseService.enrollStudent(courseCode, username);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/{courseCode}/unenroll/{username}")
+    public ResponseEntity<Void> unenrollStudent(@PathVariable String courseCode, @PathVariable String username) throws NotFoundException {
+        courseService.unenrollStudent(courseCode, username);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{courseCode}/assign/{username}")
+    public ResponseEntity<Void> assignTeacher(@PathVariable String courseCode, @PathVariable String username) throws NotFoundException, NotATeacherException, TeacherAlreadyAssignedException {
+        courseService.assignTeacher(courseCode, username);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/{courseCode}/unassign/{username}")
+    public ResponseEntity<Void> unassignTeacher(@PathVariable String courseCode, @PathVariable String username) throws NotFoundException, TeacherNotAssignedException {
+        courseService.unassignTeacher(courseCode, username);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +44,7 @@ public class Course {
     )
     private Set<User> students = new HashSet<>();
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private Set<Assignment> assignments = new HashSet<>();
 
     @Override
@@ -91,13 +90,13 @@ public class Course {
         }
     }
 
-    public void addStudent(User student) {
+    public void enrollStudent(User student) {
         if (student != null) {
             students.add(student);
         }
     }
 
-    public void removeStudent(User student) {
+    public void unenrollStudent(User student) {
         if (student != null) {
             students.remove(student);
         }
