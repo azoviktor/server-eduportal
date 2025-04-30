@@ -9,21 +9,25 @@ import cz.cvut.fel.eduportal.exception.student.StudentAlreadyEnrolledException;
 import cz.cvut.fel.eduportal.exception.teacher.TeacherAlreadyAssignedException;
 import cz.cvut.fel.eduportal.exception.teacher.TeacherNotAssignedException;
 import cz.cvut.fel.eduportal.user.User;
+import cz.cvut.fel.eduportal.user.UserConverter;
 import cz.cvut.fel.eduportal.user.UserRepository;
+import cz.cvut.fel.eduportal.user.UserService;
+import cz.cvut.fel.eduportal.user.dto.UserResponseDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class CourseService {
     private final CourseRepository courseRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public CourseService(CourseRepository courseRepository, UserRepository userRepository) {
+    public CourseService(CourseRepository courseRepository, UserService userService) {
         this.courseRepository = courseRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     public CourseResponseDTO toResponseDTO(Course course) {
@@ -57,26 +61,13 @@ public class CourseService {
                 .orElseThrow(() -> new NotFoundException("Course with code " + courseCode + " not found"));
     }
 
-    public User getUserByUsernameOrThrow(String username) throws NotFoundException {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User with username " + username + " not found"));
-    }
-
-    public User getTeacherByUsernameOrThrow(String username) throws NotFoundException, NotATeacherException {
-        User user = getUserByUsernameOrThrow(username);
-        if (!user.isTeacher()) {
-            throw new NotATeacherException(username);
-        }
-        return user;
-    }
-
     public Course toEntity(CourseCreateDTO courseDTO) throws NotFoundException {
         Course course = new Course();
         course.setTitle(courseDTO.title());
         course.setCode(courseDTO.code());
         course.setDescription(courseDTO.description());
         for (String teacherUsername : courseDTO.teachersUsernames() ) {
-            User teacher = getUserByUsernameOrThrow(teacherUsername);
+            User teacher = userService.getUserByUsernameOrThrow(teacherUsername);
             course.addTeacher(teacher);
         }
         return course;
@@ -98,10 +89,19 @@ public class CourseService {
         courseRepository.delete(course);
     }
 
+    public List<UserResponseDTO> getStudents(String courseCode) throws NotFoundException {
+        Course course = getCourseByCodeOrThrow(courseCode);
+        Set<User> students = course.getStudents();
+        return students.stream()
+                .map(UserConverter::toResponseDTO)
+                .toList();
+
+    }
+
     @Transactional
     public void enrollStudent(String courseCode, String username) throws NotFoundException, StudentAlreadyEnrolledException {
         Course course = getCourseByCodeOrThrow(courseCode);
-        User student = getUserByUsernameOrThrow(username);
+        User student = userService.getUserByUsernameOrThrow(username);
         if (course.getStudentsUsernames().contains(username)) {
             throw new StudentAlreadyEnrolledException(username, courseCode);
         }
@@ -111,17 +111,25 @@ public class CourseService {
     @Transactional
     public void unenrollStudent(String courseCode, String username) throws NotFoundException {
         Course course = getCourseByCodeOrThrow(courseCode);
-        User student = getUserByUsernameOrThrow(username);
+        User student = userService.getUserByUsernameOrThrow(username);
         if (!course.getStudentsUsernames().contains(username)) {
             throw new StudentAlreadyEnrolledException(username, courseCode);
         }
         course.unenrollStudent(student);
     }
 
+    public List<UserResponseDTO> getTeachers(String courseCode) throws NotFoundException {
+        Course course = getCourseByCodeOrThrow(courseCode);
+        Set<User> teachers = course.getTeachers();
+        return teachers.stream()
+                .map(UserConverter::toResponseDTO)
+                .toList();
+    }
+
     @Transactional
     public void assignTeacher(String courseCode, String username) throws NotFoundException, NotATeacherException, TeacherAlreadyAssignedException {
         Course course = getCourseByCodeOrThrow(courseCode);
-        User teacher = getTeacherByUsernameOrThrow(username);
+        User teacher = userService.getTeacherByUsernameOrThrow(username);
         if (course.getTeachers().contains(teacher)) {
             throw new TeacherAlreadyAssignedException(username, courseCode);
         }
@@ -134,7 +142,7 @@ public class CourseService {
         if (!course.getTeachersUsernames().contains(username)) {
             throw new TeacherNotAssignedException(username, courseCode);
         }
-        User teacher = getUserByUsernameOrThrow(username);
+        User teacher = userService.getUserByUsernameOrThrow(username);
         course.removeTeacher(teacher);
     }
 }

@@ -15,7 +15,6 @@ public record CourseCreateDTO(
         @NotBlank(message = "Description is required")
         String description,
 
-        @NotEmpty(message = "At least one teacher is required")
         List<String> teachersUsernames
 ) {
 }
