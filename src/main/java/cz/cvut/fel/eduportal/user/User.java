@@ -1,5 +1,6 @@
 package cz.cvut.fel.eduportal.user;
 import cz.cvut.fel.eduportal.course.Course;
+import cz.cvut.fel.eduportal.submission.Submission;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -42,6 +43,9 @@ public class User {
     @ManyToMany(mappedBy = "teachers")
     private Set<Course> teachingCourses = new HashSet<>();
 
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Submission> submissions = new ArrayList<>();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -52,7 +56,7 @@ public class User {
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return username.hashCode();
     }
 
     public List<String> getEnrolledCoursesCodes() {
@@ -65,6 +69,10 @@ public class User {
         return teachingCourses.stream()
                 .map(Course::getCode)
                 .toList();
+    }
+
+    public boolean isTeacher() {
+        return roles.contains(Role.TEACHER);
     }
 }
 

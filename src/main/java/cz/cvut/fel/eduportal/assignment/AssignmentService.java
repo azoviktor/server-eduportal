@@ -6,6 +6,8 @@ import cz.cvut.fel.eduportal.course.Course;
 import cz.cvut.fel.eduportal.course.CourseRepository;
 import cz.cvut.fel.eduportal.exception.AlreadyExistsException;
 import cz.cvut.fel.eduportal.exception.NotFoundException;
+import cz.cvut.fel.eduportal.submission.Submission;
+import cz.cvut.fel.eduportal.submission.SubmissionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +18,12 @@ import java.util.Optional;
 public class AssignmentService {
     private final AssignmentRepository assignmentRepository;
     private final CourseRepository courseRepository;
+    private final SubmissionRepository submissionRepository;
 
-    public AssignmentService(AssignmentRepository assignmentRepository, CourseRepository courseRepository) {
+    public AssignmentService(AssignmentRepository assignmentRepository, CourseRepository courseRepository, SubmissionRepository submissionRepository) {
         this.assignmentRepository = assignmentRepository;
         this.courseRepository = courseRepository;
+        this.submissionRepository = submissionRepository;
     }
 
     public AssignmentResponseDTO toResponseDTO(Assignment assignment) {

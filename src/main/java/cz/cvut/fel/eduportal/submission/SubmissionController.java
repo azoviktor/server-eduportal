@@ -1,11 +1,8 @@
 package cz.cvut.fel.eduportal.submission;
 
-import cz.cvut.fel.eduportal.assignment.dto.AssignmentCreateDTO;
-import cz.cvut.fel.eduportal.assignment.dto.AssignmentResponseDTO;
 import cz.cvut.fel.eduportal.exception.NotFoundException;
-import cz.cvut.fel.eduportal.submission.dto.SubmissionCreateDTO;
+import cz.cvut.fel.eduportal.exception.student.StudentNotEnrolledException;
 import cz.cvut.fel.eduportal.submission.dto.SubmissionResponseDTO;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +32,7 @@ public class SubmissionController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("assignmentId") Integer assignmentId,
             @RequestParam("studentUsername") String studentUsername
-    ) throws NotFoundException, IOException {
+    ) throws NotFoundException, IOException, StudentNotEnrolledException {
         SubmissionResponseDTO submission = submissionService.createSubmission(file, assignmentId, studentUsername);
         return ResponseEntity.status(HttpStatus.CREATED).body(submission);
     }

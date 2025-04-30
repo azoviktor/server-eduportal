@@ -1,12 +1,14 @@
 package cz.cvut.fel.eduportal.assignment;
 
 import cz.cvut.fel.eduportal.course.Course;
+import cz.cvut.fel.eduportal.submission.Submission;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(
@@ -33,6 +35,9 @@ public class Assignment {
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
+
+    @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL)
+    private List<Submission> submissions;
 
     @Override
     public boolean equals(Object o) {

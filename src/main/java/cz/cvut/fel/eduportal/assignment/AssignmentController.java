@@ -5,6 +5,7 @@ import cz.cvut.fel.eduportal.assignment.dto.AssignmentResponseDTO;
 import cz.cvut.fel.eduportal.course.dto.CourseCreateDTO;
 import cz.cvut.fel.eduportal.course.dto.CourseResponseDTO;
 import cz.cvut.fel.eduportal.exception.NotFoundException;
+import cz.cvut.fel.eduportal.submission.dto.SubmissionResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

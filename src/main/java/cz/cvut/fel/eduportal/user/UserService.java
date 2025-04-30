@@ -68,7 +68,7 @@ public class UserService {
         }
         User user = optUser.get();
         user.getTeachingCourses().forEach(course -> course.removeTeacher(user));
-        user.getEnrolledCourses().forEach(course -> course.removeStudent(user));
+        user.getEnrolledCourses().forEach(course -> course.unenrollStudent(user));
         userRepository.delete(user);
     }
 }
