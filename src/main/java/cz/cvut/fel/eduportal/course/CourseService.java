@@ -65,7 +65,6 @@ public class CourseService {
         Course course = new Course();
         course.setTitle(courseDTO.title());
         course.setCode(courseDTO.code());
-        course.setDescription(courseDTO.description());
         for (String teacherUsername : courseDTO.teachersUsernames() ) {
             User teacher = userService.getUserByUsernameOrThrow(teacherUsername);
             course.addTeacher(teacher);

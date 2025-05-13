@@ -12,9 +12,6 @@ public record CourseCreateDTO(
         @NotBlank(message = "Code is required")
         String code,
 
-        @NotBlank(message = "Description is required")
-        String description,
-
         List<String> teachersUsernames
 ) {
 }

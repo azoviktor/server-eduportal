@@ -3,13 +3,13 @@ import cz.cvut.fel.eduportal.course.Course;
 import cz.cvut.fel.eduportal.submission.Submission;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(
@@ -21,7 +21,8 @@ import java.util.Set;
 )
 @Data
 @NoArgsConstructor
-public class User {
+@AllArgsConstructor
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
@@ -33,8 +34,9 @@ public class User {
     private String firstName;
     private String lastName;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     private Set<Role> roles = new HashSet<>();
 
     @ManyToMany(mappedBy = "students")
@@ -73,6 +75,11 @@ public class User {
 
     public boolean isTeacher() {
         return roles.contains(Role.TEACHER);
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles;
     }
 
     public void addRoles(Set<Role> roles) {

@@ -26,7 +26,6 @@ public class Course {
 
     private String title;
     private String code;
-    private String description;
 
     @ManyToMany
     @JoinTable(

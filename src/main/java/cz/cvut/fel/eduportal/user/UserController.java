@@ -3,6 +3,7 @@ package cz.cvut.fel.eduportal.user;
 import cz.cvut.fel.eduportal.exception.AlreadyExistsException;
 import cz.cvut.fel.eduportal.exception.NotFoundException;
 import cz.cvut.fel.eduportal.exception.teacher.TeacherHasAssignedCoursesException;
+import cz.cvut.fel.eduportal.user.dto.RolesDTO;
 import cz.cvut.fel.eduportal.user.dto.UserCreateDTO;
 import cz.cvut.fel.eduportal.user.dto.UserResponseDTO;
 import jakarta.validation.Valid;
@@ -54,7 +55,7 @@ public class UserController {
     @PatchMapping("/{username}/roles")
     public ResponseEntity<UserResponseDTO> addRoles(
             @PathVariable String username,
-            @RequestBody Set<Role> roles
+            @RequestBody RolesDTO roles
     ) throws NotFoundException {
         UserResponseDTO updatedUser = userService.addRoles(username, roles);
         return ResponseEntity.ok(updatedUser);
@@ -63,7 +64,7 @@ public class UserController {
     @PatchMapping("/{username}/roles/remove")
     public ResponseEntity<UserResponseDTO> removeRoles(
             @PathVariable String username,
-            @RequestBody Set<Role> roles
+            @RequestBody RolesDTO roles
     ) throws NotFoundException, TeacherHasAssignedCoursesException {
         UserResponseDTO updatedUser = userService.removeRoles(username, roles);
         return ResponseEntity.ok(updatedUser);
